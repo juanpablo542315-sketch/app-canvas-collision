@@ -1,145 +1,123 @@
 const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-let ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
+const N = 10;
 
-//Obtiene las dimensiones de la pantalla actual
+class Circulo {
+    constructor(x, y, r, dx, dy, id) {
+        this.x = x;
+        this.y = y;
+        this.r = r;
+        this.dx = dx;
+        this.dy = dy;
+        this.id = id;
+        this.color = "blue";
+    }
 
-const window_height = window.innerHeight;
+    dibujar() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.strokeStyle = this.color;
+        ctx.stroke();
 
-const window_width = window.innerWidth;
+        ctx.fillStyle = "black";
+        ctx.fillText(this.id, this.x - 5, this.y + 5);
+    }
 
+    mover() {
+        this.x += this.dx;
+        this.y += this.dy;
 
-canvas.height = window_height;
+        // Rebote con bordes
+        if (this.x - this.r < 0 || this.x + this.r > canvas.width) {
+            this.dx *= -1;
+        }
 
-canvas.width = window_width;
-
-
-canvas.style.background = "#ff8";
-
-
-class Circle {
-
-constructor(x, y, radius, color, text, speed) {
-
-this.posX = x;
-
-this.posY = y;
-
-this.radius = radius;
-
-this.color = color;
-
-this.text = text;
-
-this.speed = speed;
-
-
-this.dx = 1 * this.speed;
-
-this.dy = 1 * this.speed;
-
+        if (this.y - this.r < 0 || this.y + this.r > canvas.height) {
+            this.dy *= -1;
+        }
+    }
 }
 
+let circulos = [];
 
-draw(context) {
+// Crear círculos
+for (let i = 0; i < N; i++) {
+    let r = 30;
+    let x = Math.random() * (canvas.width - 2 * r) + r;
+    let y = Math.random() * (canvas.height - 2 * r) + r;
+    let dx = (Math.random() - 0.5) * 4;
+    let dy = (Math.random() - 0.5) * 4;
 
-context.beginPath();
-
-
-context.strokeStyle = this.color;
-
-context.textAlign = "center";
-
-context.textBaseline = "middle";
-
-context.font = "20px Arial";
-
-context.fillText(this.text, this.posX, this.posY);
-
-
-context.lineWidth = 2;
-
-context.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2, false);
-
-context.stroke();
-
-context.closePath();
-
+    circulos.push(new Circulo(x, y, r, dx, dy, i));
 }
 
+// 🔥 Colisiones reales
+function detectarColisiones() {
+    for (let i = 0; i < circulos.length; i++) {
+        for (let j = i + 1; j < circulos.length; j++) {
 
-update(context) {
+            let c1 = circulos[i];
+            let c2 = circulos[j];
 
-this.draw(context);
+            let dx = c2.x - c1.x;
+            let dy = c2.y - c1.y;
 
+            let distancia = Math.sqrt(dx * dx + dy * dy);
+            let sumaRadios = c1.r + c2.r;
 
-if ((this.posX + this.radius) > window_width) {
+            if (distancia < sumaRadios) {
 
-this.dx = -this.dx;
+                // 🔹 Vector normal
+                let nx = dx / distancia;
+                let ny = dy / distancia;
 
+                // 🔹 Producto punto (velocidad relativa)
+                let p = 2 * (
+                    (c1.dx * nx + c1.dy * ny) -
+                    (c2.dx * nx + c2.dy * ny)
+                ) / 2;
+
+                // 🔹 Actualizar velocidades (rebote real)
+                c1.dx = c1.dx - p * nx;
+                c1.dy = c1.dy - p * ny;
+
+                c2.dx = c2.dx + p * nx;
+                c2.dy = c2.dy + p * ny;
+
+                // 🔥 Separar círculos para evitar que se peguen
+                let overlap = sumaRadios - distancia;
+                c1.x -= overlap * nx / 2;
+                c1.y -= overlap * ny / 2;
+                c2.x += overlap * nx / 2;
+                c2.y += overlap * ny / 2;
+
+                // 🎨 Cambiar color al colisionar
+                c1.color = "red";
+                c2.color = "red";
+            } else {
+                // Regresar color normal si no hay colisión
+                c1.color = "blue";
+                c2.color = "blue";
+            }
+        }
+    }
 }
 
+function animar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-if ((this.posX - this.radius) < 0) {
+    detectarColisiones();
 
-this.dx = -this.dx;
+    circulos.forEach(c => {
+        c.mover();
+        c.dibujar();
+    });
 
+    requestAnimationFrame(animar);
 }
 
-
-if ((this.posY - this.radius) < 0) {
-
-this.dy = -this.dy;
-
-}
-
-
-if ((this.posY + this.radius) > window_height) {
-
-this.dy = -this.dy;
-
-}
-
-
-this.posX += this.dx;
-
-this.posY += this.dy;
-
-}
-
-
-}
-
-
-let randomX = Math.random() * window_width;
-
-let randomY = Math.random() * window_height;
-
-let randomRadius = Math.floor(Math.random() * 100 + 30);
-
-
-let miCirculo = new Circle(100, 100, 50, "blue", "1", 3);
-
-let miCirculo2 = new Circle(450, 150, 80, "blue", "2", 3);
-
-
-miCirculo.draw(ctx);
-
-miCirculo2.draw(ctx);
-
-
-let updateCircle = function () {
-
-requestAnimationFrame(updateCircle);
-
-ctx.clearRect(0, 0, window_width, window_height);
-
-miCirculo.update(ctx);
-
-miCirculo2.update(ctx);
-
-};
-
-
-updateCircle();
+animar();
