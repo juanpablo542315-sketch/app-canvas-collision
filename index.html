@@ -3,14 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Collision</title>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: #f0f0f0; }
-        canvas { display: block; }
-    </style>
+    <title>Simulador de Círculos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
-    <canvas id="canvas"></canvas>
-    <script src="assets/js/main_colsision.js"></script>
+<body class="bg-dark text-white">
+
+    <div class="container py-4">
+        <header class="mb-4">
+            <h1>Simulación de Círculos</h1>
+            <p class="text-secondary">Ajusta la cantidad de círculos y observa el comportamiento en cada simulación.</p>
+            
+            <div class="row align-items-center bg-secondary bg-opacity-10 p-3 rounded">
+                <div class="col-md-8">
+                    <label for="cantidadCírculos" class="form-label">Cantidad de círculos:</label>
+                    <input type="range" class="form-range" id="inputCantidad" min="2" max="50" value="8">
+                </div>
+                <div class="col-md-4 text-center">
+                    <small>Cantidad seleccionada:</small>
+                    <h2 id="valorCantidad">8</h2>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card bg-secondary bg-opacity-25 text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Círculos que se mueven</h5>
+                        <p class="small text-secondary">Movimiento y rebote contra bordes.</p>
+                        <canvas id="canvas1" class="w-100 bg-warning bg-opacity-10 rounded"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-secondary bg-opacity-25 text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Círculos que colisionan</h5>
+                        <p class="small text-secondary">Cambian de color al tocarse o traslaparse.</p>
+                        <canvas id="canvas2" class="w-100 bg-warning bg-opacity-10 rounded"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-secondary bg-opacity-25 text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Círculos que rebotan</h5>
+                        <p class="small text-secondary">Rebote entre círculos y cambio de color.</p>
+                        <canvas id="canvas3" class="w-100 bg-warning bg-opacity-10 rounded"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-5 pt-4 border-top text-center text-secondary">
+            <p>&copy; 2026 - App Canvas Collision | Desarrollado por Juan Pablo</p>
+        </footer>
+    </div>
+
+    <script src="assets/js/Circulo.js"></script>
+    <script src="assets/js/main_movimiento.js"></script>
+    <script src="assets/js/main_colision.js"></script>
+    <script src="assets/js/main_rebote.js"></script>
 </body>
 </html>
